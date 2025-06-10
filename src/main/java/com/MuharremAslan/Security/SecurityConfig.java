@@ -1,5 +1,6 @@
 package com.MuharremAslan.Security;
 
+import com.MuharremAslan.Model.ROLE;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -8,18 +9,19 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity //Implementing SecurityFilterChain
 @EnableMethodSecurity // provide security of controllers
 public class SecurityConfig {
-
+/*
     // ### In-Memory-Security
 
     @Bean
@@ -65,4 +67,44 @@ public class SecurityConfig {
     }
 
     // ### In-Memory-Security ###
+
+ */
+
+// ### Basic-Auth Security
+
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                // Disable X-Frame-Options header (e.g., required for H2-console)
+                // you can use with defaults
+                .headers(x -> x.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())// Activating CORS
+                // Defining authorization rules
+                .authorizeHttpRequests(
+                        x ->x
+                                // Allow all requests to "/publicBasic/**"
+                                .requestMatchers("/publicBasic/**").permitAll()
+                                // Only users with ROLE_USER authority can access "/privateBasic/user"
+                                .requestMatchers("/privateBasic/user").hasAuthority(ROLE.ROLE_USER.getAuthority())
+                                // Only users with ROLE_ADMIN authority can access "/privateBasic/admin"
+                                .requestMatchers("/privateBasic/admin").hasAuthority(ROLE.ROLE_ADMIN.getAuthority())
+                                // Only users with ROLE_MODERATOR authority can access "/privateBasic/mod"
+                                .requestMatchers("/privateBasic/mod").hasAuthority(ROLE.ROLE_MODERATOR.getAuthority())
+                                // All users with ROLE_ADMIN, ROLE_MODERATOR, or ROLE_USER can access "/privateBasic/**"
+                                .requestMatchers("/privateBasic/**").hasAnyAuthority(ROLE.ROLE_ADMIN.getAuthority(),ROLE.ROLE_MODERATOR.getAuthority(),ROLE.ROLE_USER.getAuthority())
+
+
+                        // Setting  session creation policy: create session if required (not stateless)
+                ).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                //.formLogin(AbstractHttpConfigurer::disable)
+                .formLogin(Customizer.withDefaults())
+                .httpBasic(Customizer.withDefaults());
+        //.formLogin(AbstractHttpConfigurer::disable)
+
+        return http.build();
+    }
+
+    // ### Basic-Auth Security ###
 }
