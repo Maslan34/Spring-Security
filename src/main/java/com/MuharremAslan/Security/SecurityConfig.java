@@ -1,19 +1,24 @@
 package com.MuharremAslan.Security;
 
 import com.MuharremAslan.Model.ROLE;
+import com.MuharremAslan.Service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
@@ -21,13 +26,23 @@ import java.util.List;
 @EnableWebSecurity //Implementing SecurityFilterChain
 @EnableMethodSecurity // provide security of controllers
 public class SecurityConfig {
-/*
-    // ### In-Memory-Security
 
+    private final UserDetailsServiceImpl userDetailsService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    public SecurityConfig(UserDetailsServiceImpl userDetailsService, BCryptPasswordEncoder bCryptPasswordEncoder) {
+        this.userDetailsService = userDetailsService;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+    }
+
+    // ### In-Memory-Security
+  /*
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+
 
     @Bean
     public UserDetailsService userDetailsService() {
@@ -45,7 +60,6 @@ public class SecurityConfig {
 
 
     }
-
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -70,6 +84,8 @@ public class SecurityConfig {
 
  */
 
+
+    /*
 // ### Basic-Auth Security
 
 
@@ -107,4 +123,56 @@ public class SecurityConfig {
     }
 
     // ### Basic-Auth Security ###
+
+
+     */
+
+    //### JWT AUTH
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
+        return http
+                .headers(x -> x.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .authorizeHttpRequests(
+                        x -> x
+                                .requestMatchers("/auth/addNewUser/**", "/auth/generateToken/**").permitAll()
+                                .requestMatchers("/auth/user/**").hasAuthority(ROLE.ROLE_USER.getAuthority())
+                                .requestMatchers("/auth/admin/**").hasAuthority(ROLE.ROLE_ADMIN.getAuthority())
+
+                ).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT de STATELESS KULLANIYORUZ.
+                // Here we specify what the authentication provider will be like.
+                .authenticationProvider(authenticationProvider())
+                // It will pass through the jwt filter before authenticating. If it returns negative, then the authenticate process will be performed.
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                //.formLogin(AbstractHttpConfigurer::disable)
+                .formLogin(Customizer.withDefaults())
+                .httpBasic(Customizer.withDefaults()).build();
+        //.formLogin(AbstractHttpConfigurer::disable)
+
+
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(); // Why dao? Because it will go to db and check this using userdetails service.
+        authenticationProvider.setUserDetailsService(userDetailsService);
+        authenticationProvider.setPasswordEncoder(bCryptPasswordEncoder);
+        return authenticationProvider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) {
+        try {
+            return authenticationConfiguration.getAuthenticationManager();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    //### JWT AUTH ###
+
+
 }

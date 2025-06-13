@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql-container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: jwt12345
+      MYSQL_DATABASE: JWT
+      MYSQL_USER: user
+      MYSQL_PASSWORD: jwt12345
+    ports:
+      - "3307:3306"  #The first one is the port accessed from outside and the other one is the imagin port.
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:

@@ -1,18 +1,16 @@
-package com.MuharremAslan.Service;
+package com.MuharremAslan.Model;
 
-import com.MuharremAslan.Model.ROLE;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateUserRequest {
+public class AuthRequest {
     String username;
     String password;
-    String name;
-    Set<ROLE> authorities ;
 }
+
+
+

@@ -1,7 +1,7 @@
 package com.MuharremAslan.Controller;
 
 import com.MuharremAslan.Model.User;
-import com.MuharremAslan.Service.CreateUserRequest;
+import com.MuharremAslan.Model.CreateUserRequest;
 import com.MuharremAslan.Service.UserService;
 import org.springframework.web.bind.annotation.*;
 

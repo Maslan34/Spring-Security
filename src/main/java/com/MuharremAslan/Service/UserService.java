@@ -1,5 +1,6 @@
 package com.MuharremAslan.Service;
 
+import com.MuharremAslan.Model.CreateUserRequest;
 import com.MuharremAslan.Model.User;
 import com.MuharremAslan.Repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
