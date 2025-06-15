@@ -127,6 +127,7 @@ public class SecurityConfig {
 
      */
 
+    /*
     //### JWT AUTH
 
     @Bean
@@ -153,7 +154,7 @@ public class SecurityConfig {
 
 
     }
-
+    */
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(); // Why dao? Because it will go to db and check this using userdetails service.
@@ -174,5 +175,26 @@ public class SecurityConfig {
 
     //### JWT AUTH ###
 
+
+    //### OAuth2
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/", "/login**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .defaultSuccessUrl("/oauth2/google", true)
+                )
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/oauth2/").permitAll()
+                );
+
+        return http.build();
+    }
+
+    //### OAuth2 ###
 
 }
