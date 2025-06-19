@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Initializing 2FA</title>
+</head>
+<body>
+<h2>Connect Google Authenticator with 2Fa</h2>
+<p>Open the Google Authenticator app and scan the QR code below:</p>
+<img th:src="${qrUrl}" alt="QR Code" />
+
+<p>Please write down this secret key somewhere. Your Secret Key:<strong th:text="${secret}"></strong></p>
+
+<form method="post" action="/verify-2fa">
+  <label for="code">6 digit code in the Google Authenticator:</label>
+  <input type="text" name="code" required />
+  <button type="submit">Verify</button>
+</form>
+</body>
+</html>

@@ -37,6 +37,8 @@ public class User implements UserDetails {
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
     private Set<ROLE> authorities;
+    @Column(name = "secretKey")
+    private String secretKey;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

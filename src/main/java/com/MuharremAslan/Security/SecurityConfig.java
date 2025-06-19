@@ -1,7 +1,5 @@
 package com.MuharremAslan.Security;
 
-import com.MuharremAslan.Model.ROLE;
-import com.MuharremAslan.Service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,13 +12,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity //Implementing SecurityFilterChain
@@ -154,7 +147,7 @@ public class SecurityConfig {
 
 
     }
-    */
+   */
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(); // Why dao? Because it will go to db and check this using userdetails service.
@@ -175,7 +168,7 @@ public class SecurityConfig {
 
     //### JWT AUTH ###
 
-
+    /*
     //### OAuth2
 
     @Bean
@@ -196,5 +189,33 @@ public class SecurityConfig {
     }
 
     //### OAuth2 ###
+
+
+     */
+
+    //### 2FA
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .headers(x->x.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .authorizeHttpRequests(
+                        x ->x
+                                .requestMatchers("/login", "/verify-2fa", "/2fa-check").permitAll()
+                                .anyRequest().authenticated()
+
+                )
+
+                .formLogin(form -> form
+                        .defaultSuccessUrl("/2fa-check", true)
+                        .permitAll()
+                )
+                .httpBasic(Customizer.withDefaults());
+
+        return http.build();
+    }
+
 
 }

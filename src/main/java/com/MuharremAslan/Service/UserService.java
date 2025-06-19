@@ -24,6 +24,12 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
+    public void setUserSecret(String username, String secretKey) {
+        Optional<User> user = userRepository.findByUsername(username);
+        user.get().setSecretKey(secretKey);
+        userRepository.save(user.get());
+    }
+
 
     // This user is a implementation of UserDetails
     public User createUser(CreateUserRequest request) {
