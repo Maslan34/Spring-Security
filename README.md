@@ -6,7 +6,7 @@
 
 You can explore and test all API endpoints directly using my public Postman collection:
 
-[![Run in Postman](https://run.pstmn.io/button.svg)](https://www.postman.com/cryosat-technologist-94729418/spring-security/collection/rqmjkva/spring-security?action=share&source=copy-link&creator=34103070)
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://www.postman.com/maslan34/spring-security/collection/rqmjkva/spring-security?action=share&source=copy-link&creator=34103070)
 
 
 ## 📖 Information
